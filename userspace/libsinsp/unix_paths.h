@@ -23,6 +23,11 @@ limitations under the License.
 
 namespace unix_paths {
 
+namespace detail {
+std::string concatenate_paths_fs(std::string_view path1, std::string_view path2, size_t max_len=SCAP_MAX_PATH_SIZE-1);
+std::string concatenate_paths_cwalk(std::string_view path1, std::string_view path2, size_t max_len=SCAP_MAX_PATH_SIZE-1);
+}
+
 //
 // Concatenate posix-style path1 and path2 up to max_len in size, normalizing the result.
 // If path2 is absolute, the result will be equivalent to path2.

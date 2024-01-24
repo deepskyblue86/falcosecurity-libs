@@ -42,7 +42,7 @@ static std::filesystem::path workaround_win_root_name(std::filesystem::path p)
 }
 #endif
 
-static std::string concatenate_paths_fs(std::string_view path1, std::string_view path2, size_t max_len)
+std::string detail::concatenate_paths_fs(std::string_view path1, std::string_view path2, size_t max_len)
 {
     auto p1 = std::filesystem::path(path1, std::filesystem::path::format::generic_format);
     auto p2 = std::filesystem::path(path2, std::filesystem::path::format::generic_format);
@@ -108,7 +108,7 @@ public:
 
 static cwalk_state state;
 
-static std::string concatenate_paths_cwalk(std::string_view path1, std::string_view path2, size_t max_len)
+std::string detail::concatenate_paths_cwalk(std::string_view path1, std::string_view path2, size_t max_len)
 {
 	state.ensure_buf(max_len + 1);
 	// size_t cwk_path_join(const char *path_a, const char *path_b, char *buffer, size_t buffer_size);
@@ -133,7 +133,7 @@ static std::string concatenate_paths_cwalk(std::string_view path1, std::string_v
 
 std::string concatenate_paths(std::string_view path1, std::string_view path2, size_t max_len)
 {
-	return concatenate_paths_cwalk(path1, path2, max_len);
+	return detail::concatenate_paths_cwalk(path1, path2, max_len);
 }
 
 } // namespace unix_paths
