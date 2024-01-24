@@ -74,15 +74,66 @@ static std::string concatenate_paths_fs(std::string_view path1, std::string_view
 	return result;
 }
 
+class cwalk_state
+{
+public:
+	cwalk_state()
+	{
+		m_buf = nullptr;
+		m_size = 0;
+	}
+
+	~cwalk_state()
+	{
+		if (m_buf != nullptr)
+		{
+			free(m_buf);
+		}
+	}
+
+	void ensure_buf(size_t size)
+	{
+		if (m_size < size)
+		{
+			m_buf = (char*) malloc(size);
+			m_size = size;
+
+			// err handling?
+		}
+	}
+
+	char* m_buf;
+	size_t m_size;
+};
+
+static cwalk_state state;
+
 static std::string concatenate_paths_cwalk(std::string_view path1, std::string_view path2, size_t max_len)
 {
+	state.ensure_buf(max_len + 1);
+	// size_t cwk_path_join(const char *path_a, const char *path_b, char *buffer, size_t buffer_size);
 
+	size_t complete_size;
+
+	if (path1.data() == nullptr || path1.size() == 0 || cwk_path_is_absolute(path2.data()))
+	{
+		complete_size = cwk_path_normalize(path2.data(), state.m_buf, state.m_size);
+	} else
+	{
+		complete_size = cwk_path_join(path1.data(), path2.data(), state.m_buf, state.m_size);
+	}
+
+	if (complete_size > max_len)
+	{
+		return "/PATH_TOO_LONG";
+	}
+	return std::string(state.m_buf);
 }
 
 
 std::string concatenate_paths(std::string_view path1, std::string_view path2, size_t max_len)
 {
-	return concatenate_paths_fs(path1, path2, max_len);
+	return concatenate_paths_cwalk(path1, path2, max_len);
 }
 
 } // namespace unix_paths

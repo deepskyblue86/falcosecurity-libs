@@ -113,6 +113,7 @@ add_library(sinsp
 	stats.cpp
 	token_bucket.cpp
 	utils.cpp
+	cwalk.c # obviously, this will need to be moved elsewhere
 	unix_paths.cpp
 	value_parser.cpp
 	user.cpp
