@@ -37,6 +37,7 @@ limitations under the License.
 #include "sinsp.h"
 #include "sinsp_int.h"
 #include "strl.h"
+#include "unix_paths.h"
 
 #include "scap.h"
 
@@ -1046,7 +1047,7 @@ const char* sinsp_evt::get_param_as_str(uint32_t id, OUT const char** resolved_s
 				}
 				else
 				{
-					std::string concatenated_path = sinsp_utils::concatenate_paths(cwd, path);
+					std::string concatenated_path = unix_paths::concatenate_paths(cwd, path);
 					strcpy_sanitized(&m_resolved_paramstr_storage[0], concatenated_path.data(), std::min(concatenated_path.size() + 1, m_resolved_paramstr_storage.size()));
 				}
 			}

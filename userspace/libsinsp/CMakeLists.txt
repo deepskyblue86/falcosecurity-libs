@@ -113,6 +113,7 @@ add_library(sinsp
 	stats.cpp
 	token_bucket.cpp
 	utils.cpp
+	unix_paths.cpp
 	value_parser.cpp
 	user.cpp
 	gvisor_config.cpp

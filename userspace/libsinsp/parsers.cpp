@@ -40,6 +40,7 @@ limitations under the License.
 #include "strl.h"
 #include "plugin_manager.h"
 #include "sinsp_observer.h"
+#include "unix_paths.h"
 
 #ifdef SIMULATE_DROP_MODE
 bool should_drop(sinsp_evt *evt);
@@ -2272,7 +2273,7 @@ void sinsp_parser::parse_execve_exit(sinsp_evt *evt)
 				else
 				{
 					/* Here the filename can be relative or absolute. */
-					fullpath = sinsp_utils::concatenate_paths(evt->m_tinfo->m_cwd, filename);
+					fullpath = unix_paths::concatenate_paths(evt->m_tinfo->m_cwd, filename);
 				}
 			}
 			else if(enter_evt->get_type() == PPME_SYSCALL_EXECVEAT_E)
@@ -2328,7 +2329,7 @@ void sinsp_parser::parse_execve_exit(sinsp_evt *evt)
 					/* In this case `sdir` will always be an absolute path.
 					 * concatenate_paths takes care of resolving the path
 					*/
-					fullpath = sinsp_utils::concatenate_paths("", sdir);
+					fullpath = unix_paths::concatenate_paths("", sdir);
 
 				}
 				/* (2)/(1) If it is relative or absolute we craft the `fullpath` as usual:
@@ -2336,7 +2337,7 @@ void sinsp_parser::parse_execve_exit(sinsp_evt *evt)
 				*/
 				else
 				{
-					fullpath = sinsp_utils::concatenate_paths(sdir, pathname);
+					fullpath = unix_paths::concatenate_paths(sdir, pathname);
 				}
 			}
 			evt->m_tinfo->m_exepath = fullpath;
@@ -2752,7 +2753,7 @@ void sinsp_parser::parse_open_openat_creat_exit(sinsp_evt *evt)
 	//ASSERT(parinfo->m_len == sizeof(uint32_t));
 	//mode = *(uint32_t*)parinfo->m_val;
 
-	std::string fullpath = sinsp_utils::concatenate_paths(sdir, name);
+	std::string fullpath = unix_paths::concatenate_paths(sdir, name);
 
 	if(fd >= 0)
 	{

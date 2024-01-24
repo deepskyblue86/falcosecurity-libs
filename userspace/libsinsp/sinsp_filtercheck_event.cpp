@@ -24,6 +24,7 @@ limitations under the License.
 #include "plugin.h"
 #include "plugin_manager.h"
 #include "value_parser.h"
+#include "unix_paths.h"
 
 using namespace std;
 
@@ -488,7 +489,7 @@ uint8_t *sinsp_filter_check_event::extract_abspath(sinsp_evt *evt, OUT uint32_t 
 			// Get the file path directly from the ring buffer.
 			// concatenate_paths takes care of resolving the path
 			//
-			m_strstorage = sinsp_utils::concatenate_paths("", evt->get_param(3)->as<std::string_view>());
+			m_strstorage = unix_paths::concatenate_paths("", evt->get_param(3)->as<std::string_view>());
 
 			RETURN_EXTRACT_STRING(m_strstorage);
 		}
@@ -594,7 +595,7 @@ uint8_t *sinsp_filter_check_event::extract_abspath(sinsp_evt *evt, OUT uint32_t 
 		}
 	}
 
-	m_strstorage = sinsp_utils::concatenate_paths(sdir, path);
+	m_strstorage = unix_paths::concatenate_paths(sdir, path);
 
 	RETURN_EXTRACT_STRING(m_strstorage);
 }

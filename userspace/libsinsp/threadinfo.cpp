@@ -27,6 +27,7 @@ limitations under the License.
 #include "sinsp.h"
 #include "sinsp_int.h"
 #include "scap-int.h"
+#include "unix_paths.h"
 
 constexpr static const char* s_thread_table_name = "threads";
 
@@ -936,7 +937,7 @@ void sinsp_threadinfo::set_cwd(std::string_view cwd)
 		return;
 	}
 
-	tinfo->m_cwd = sinsp_utils::concatenate_paths(m_cwd, cwd);
+	tinfo->m_cwd = unix_paths::concatenate_paths(m_cwd, cwd);
 
 	if(tinfo->m_cwd.empty() || tinfo->m_cwd.back() != '/')
 	{

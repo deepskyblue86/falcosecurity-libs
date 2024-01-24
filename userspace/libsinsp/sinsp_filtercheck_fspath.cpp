@@ -22,6 +22,7 @@ limitations under the License.
 #include "sinsp_filtercheck_fd.h"
 #include "sinsp.h"
 #include "sinsp_int.h"
+#include "unix_paths.h"
 
 using namespace std;
 
@@ -351,11 +352,11 @@ uint8_t* sinsp_filter_check_fspath::extract(sinsp_evt* evt, OUT uint32_t* len, b
 
 		if(!std::filesystem::path(m_tstr).is_absolute())
 		{
-			m_tstr = sinsp_utils::concatenate_paths(tinfo->get_cwd(), m_tstr);
+			m_tstr = unix_paths::concatenate_paths(tinfo->get_cwd(), m_tstr);
 		} else
 		{
 			// concatenate_paths takes care of resolving the path
-			m_tstr = sinsp_utils::concatenate_paths("", m_tstr);
+			m_tstr = unix_paths::concatenate_paths("", m_tstr);
 		}
 	}
 

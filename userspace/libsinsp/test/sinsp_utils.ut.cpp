@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <gtest/gtest.h>
 #include "utils.h"
+#include "unix_paths.h"
 
 TEST(sinsp_utils_test, concatenate_paths)
 {
@@ -26,121 +27,121 @@ TEST(sinsp_utils_test, concatenate_paths)
 
 	std::string path1, path2, res;
 
-	res = sinsp_utils::concatenate_paths("", "");
+	res = unix_paths::concatenate_paths("", "");
 	EXPECT_EQ("", res);
 
 	path1 = "";
 	path2 = "../";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("..", res);
 
 	path1 = "";
 	path2 = "./";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ(".", res);
 
 	path1 = "";
 	path2 = "dir/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ(path2, res);
 
 	path1 = "";
 	path2 = "//dir/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/dir/term", res);
 
 	path1 = "/";
 	path2 = "dir/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/dir/term", res);
 
 	path1 = "";
 	path2 = "///dir/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/dir/term", res);
 
 	path1 = "";
 	path2 = "./dir/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("dir/term", res);
 
 	path1 = "/";
 	path2 = "//dir//////term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/dir/term", res);
 
 	path1 = "/";
 	path2 = "/dir/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/dir/term", res);
 
 	path1 = "../.../";
 	path2 = "dir/././././../../.../term/";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("../.../term", res);
 
 	path1 = "../.../";
 	path2 = "/app/custom/dir/././././../../.../term/";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/app/.../term", res);
 
 	path1 = "../.../";
 	path2 = "/app/custom/dir/././././../../term/";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/app/term", res);
 
 	path1 = "./app";
 	path2 = "custom/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("app/custom/term", res);
 
 	path1 = "/app";
 	path2 = "custom/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/app/custom/term", res);
 
 	path1 = "app";
 	path2 = "custom/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("app/custom/term", res);
 
 	path1 = "app//";
 	path2 = "custom/term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("app/custom/term", res);
 
 	path1 = "app/////";
 	path2 = "custom////term";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("app/custom/term", res);
 
 	path1 = "/";
 	path2 = "/app/custom/dir/././././../../term/";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/app/term", res);
 
 	path1 = "/";
 	path2 = "////app";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/app", res);
 
 	path1 = "/root/";
 	path2 = "../😉";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/😉", res);
 
 	path1 = "/root/";
 	path2 = "../诶比西";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/诶比西", res);
 
 	path1 = "/root/";
 	path2 = "../АБВЙЛж";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/АБВЙЛж", res);
 
 	path1 = "/root";
 	path2 = "c:/hello/world/";
-	res = sinsp_utils::concatenate_paths(path1, path2);
+	res = unix_paths::concatenate_paths(path1, path2);
 	EXPECT_EQ("/root/c:/hello/world", res);
 }

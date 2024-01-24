@@ -20,6 +20,7 @@ limitations under the License.
 #include "sinsp.h"
 #include "sinsp_int.h"
 #include "dns_manager.h"
+#include "unix_paths.h"
 
 using namespace std;
 
@@ -244,7 +245,7 @@ bool sinsp_filter_check_fd::extract_fdname_from_creator(sinsp_evt *evt, OUT uint
 			else
 			{
 				// fullpath
-				m_tstr = sinsp_utils::concatenate_paths(sdir, name); // here we'd like a string
+				m_tstr = unix_paths::concatenate_paths(sdir, name); // here we'd like a string
 			}
 
 			if(sanitize_strings)
