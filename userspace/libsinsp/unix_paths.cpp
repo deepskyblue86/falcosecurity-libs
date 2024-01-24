@@ -82,7 +82,7 @@ static std::string concatenate_paths_cwalk(std::string_view path1, std::string_v
 
 std::string concatenate_paths(std::string_view path1, std::string_view path2, size_t max_len)
 {
-	return concatenate_paths_cwalk(path1, path2, max_len);
+	return concatenate_paths_fs(path1, path2, max_len);
 }
 
 } // namespace unix_paths
