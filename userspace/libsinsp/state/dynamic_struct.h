@@ -118,9 +118,9 @@ public:
 		inline const libsinsp::state::typeinfo& info() const override { return m_info; }
 
 		/**
-		 * @brief Returns the field kind (DYNAMIC for dynamic fields).
+		 * @brief Create a type-erased accessor for this field.
 		 */
-		field_kind kind() const override { return DYNAMIC; }
+		std::unique_ptr<base_field_accessor> new_accessor(const typeinfo& type) const override;
 
 		/**
 		 * @brief Returns a strongly-typed accessor for the given field,

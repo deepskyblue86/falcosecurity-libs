@@ -144,7 +144,6 @@ TEST_F(UnifiedFieldAccessTest, GetFieldInfo) {
 	auto container_id_info = m_entry->get_field_info("container_id");
 	ASSERT_NE(container_id_info, nullptr);
 	EXPECT_EQ(container_id_info->name(), "container_id");
-	EXPECT_EQ(container_id_info->kind(), base_field_info::DYNAMIC);
 	EXPECT_TRUE(container_id_info->valid());
 	EXPECT_FALSE(container_id_info->readonly());
 

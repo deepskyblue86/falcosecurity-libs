@@ -98,20 +98,13 @@ struct table_entry : public static_struct, dynamic_struct {
 		}
 
 		try {
-			if(field_info->kind() == base_field_info::STATIC) {
-				const auto& static_info =
-				        static_cast<const static_struct::field_info&>(*field_info);
-				auto accessor = static_info.template new_accessor<T>();
-				return get_static_field(accessor);
-			} else {
-				const auto& dynamic_info =
-				        static_cast<const dynamic_struct::field_info&>(*field_info);
-				auto accessor = dynamic_info.template new_accessor<T>();
-				T value;
-				// Need to cast away const to call get_dynamic_field
-				const_cast<table_entry*>(this)->get_dynamic_field(accessor, value);
-				return value;
-			}
+			auto accessor = field_info->new_accessor(typeinfo::of<T>());
+			if(!accessor)
+				return std::nullopt;
+
+			T value;
+			accessor->read_value(*this, &value);
+			return value;
 		} catch(...) {
 			return std::nullopt;
 		}
@@ -136,19 +129,12 @@ struct table_entry : public static_struct, dynamic_struct {
 		}
 
 		try {
-			if(field_info->kind() == base_field_info::STATIC) {
-				const auto& static_info =
-				        static_cast<const static_struct::field_info&>(*field_info);
-				auto accessor = static_info.template new_accessor<T>();
-				set_static_field(accessor, value);
-				return true;
-			} else {
-				const auto& dynamic_info =
-				        static_cast<const dynamic_struct::field_info&>(*field_info);
-				auto accessor = dynamic_info.template new_accessor<T>();
-				set_dynamic_field(accessor, value);
-				return true;
-			}
+			auto accessor = field_info->new_accessor(typeinfo::of<T>());
+			if(!accessor)
+				return false;
+
+			accessor->write_value(*this, &value);
+			return true;
 		} catch(...) {
 			return false;
 		}

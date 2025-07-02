@@ -43,6 +43,22 @@ public:
 	 */
 	class field_info : public base_field_info {
 	public:
+		/**
+		 * @brief Build a field_info object for a given field and type.
+		 */
+		template<typename T>
+		static inline field_info build(const std::string& name,
+		                               size_t offset,
+		                               bool readonly = false) {
+			return field_info(name, offset, typeinfo::of<T>(), readonly);
+		}
+
+		inline field_info(const std::string& n, size_t off, const typeinfo& i, bool r):
+		        m_readonly(r),
+		        m_offset(off),
+		        m_name(n),
+		        m_info(i) {}
+
 		inline field_info():
 		        m_readonly(true),
 		        m_offset((size_t)-1),
@@ -84,9 +100,9 @@ public:
 		inline const libsinsp::state::typeinfo& info() const override { return m_info; }
 
 		/**
-		 * @brief Returns the field kind (STATIC for static fields).
+		 * @brief Returns the offset of the field within the struct.
 		 */
-		field_kind kind() const override { return STATIC; }
+		inline size_t offset() const { return m_offset; }
 
 		/**
 		 * @brief Returns a strongly-typed accessor for the given field,
@@ -108,26 +124,16 @@ public:
 			return field_accessor<T>(*this);
 		}
 
+		/**
+		 * @brief Create a type-erased accessor for this field.
+		 */
+		std::unique_ptr<base_field_accessor> new_accessor(const typeinfo& type) const override;
+
 	private:
-		inline field_info(const std::string& n, size_t o, const typeinfo& i, bool r):
-		        m_readonly(r),
-		        m_offset(o),
-		        m_name(n),
-		        m_info(i) {}
-
-		template<typename T>
-		static inline field_info _build(const std::string& name,
-		                                size_t offset,
-		                                bool readonly = false) {
-			return field_info(name, offset, libsinsp::state::typeinfo::of<T>(), readonly);
-		}
-
 		bool m_readonly;
 		size_t m_offset;
 		std::string m_name;
 		libsinsp::state::typeinfo m_info;
-
-		friend class static_struct;
 	};
 
 	/**
@@ -179,7 +185,7 @@ public:
 		if(!a.info().valid()) {
 			throw sinsp_exception("can't get invalid field in static struct");
 		}
-		return *(reinterpret_cast<T*>((void*)(((uintptr_t)this) + a.info().m_offset)));
+		return *(reinterpret_cast<T*>((void*)(((uintptr_t)this) + a.info().offset())));
 	}
 
 	/**
@@ -202,7 +208,7 @@ public:
 		if(a.info().readonly()) {
 			throw sinsp_exception("can't set a read-only static struct field: " + a.info().name());
 		}
-		*(reinterpret_cast<T*>((void*)(((uintptr_t)this) + a.info().m_offset))) = in;
+		*(reinterpret_cast<T*>((void*)(((uintptr_t)this) + a.info().offset()))) = in;
 	}
 
 	/**
@@ -232,7 +238,7 @@ protected:
 		}
 
 		// todo(jasondellaluce): add extra safety boundary checks here
-		fields.insert({name, field_info::_build<T>(name, offset, readonly)});
+		fields.insert({name, field_info::build<T>(name, offset, readonly)});
 		return fields.at(name);
 	}
 };

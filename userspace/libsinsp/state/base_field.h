@@ -20,12 +20,27 @@ limitations under the License.
 
 #include <libsinsp/state/type_info.h>
 #include <string>
+#include <memory>
 
 namespace libsinsp {
 namespace state {
 
+struct table_entry;
+
 /**
- * @brief Base class for field information, abstracting static vs dynamic differences
+ * @brief Type-erased base accessor for field access operations
+ */
+class base_field_accessor {
+public:
+	virtual ~base_field_accessor() = default;
+
+	virtual void read_value(const table_entry& entry, void* out) const = 0;
+	virtual void write_value(table_entry& entry, const void* in) const = 0;
+};
+
+/**
+ * @brief Base class for field information, abstracting
+ * differences between static and dynamic fields
  */
 class base_field_info {
 public:
@@ -37,9 +52,7 @@ public:
 	virtual bool readonly() const = 0;
 	virtual bool valid() const = 0;
 
-	// Field type identification
-	enum field_kind { STATIC, DYNAMIC };
-	virtual field_kind kind() const = 0;
+	virtual std::unique_ptr<base_field_accessor> new_accessor(const typeinfo& type) const = 0;
 };
 
 }  // namespace state

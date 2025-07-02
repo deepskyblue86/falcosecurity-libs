@@ -95,6 +95,8 @@ add_library(
 	events/sinsp_events.cpp
 	events/sinsp_events_ppm_sc.cpp
 	state/table.cpp
+	state/static_struct.cpp
+	state/dynamic_struct.cpp
 )
 
 if(NOT WIN32
