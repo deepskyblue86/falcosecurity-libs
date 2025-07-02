@@ -408,14 +408,7 @@ std::string sinsp_threadinfo::get_exepath() const {
 }
 
 std::string sinsp_threadinfo::get_container_id() {
-	std::string container_id;
-
-	const auto accessor = m_params->thread_manager->get_field_accessor(
-	        sinsp_thread_manager::s_container_id_field_name);
-	if(accessor) {
-		get_dynamic_field(*accessor, container_id);
-	}
-	return container_id;
+	return get_field_or<std::string>("container_id", "");
 }
 
 std::string sinsp_threadinfo::get_container_user() {

@@ -116,6 +116,7 @@ set(LIBSINSP_UNIT_TESTS_SOURCES
 	thread_table.ut.cpp
 	thread_pool.ut.cpp
 	ifinfo.ut.cpp
+	test_unified_field_access.cpp
 	public_sinsp_API/event_related.cpp
 	public_sinsp_API/sinsp_logger.cpp
 	"${TEST_PLUGINS}"

@@ -24,6 +24,7 @@ limitations under the License.
 #include <type_traits>
 #include <memory>
 #include <list>
+#include <optional>
 
 namespace libsinsp {
 namespace state {
@@ -59,6 +60,120 @@ struct table_entry : public static_struct, dynamic_struct {
 	table_entry& operator=(table_entry&&) = default;
 	table_entry(const table_entry& s) = default;
 	table_entry& operator=(const table_entry& s) = default;
+
+	// === UNIFIED FIELD ACCESS API ===
+
+	/**
+	 * @brief Get field info by name - works for both static and dynamic fields
+	 */
+	std::shared_ptr<const base_field_info> get_field_info(const std::string& name) const {
+		// Check static fields first
+		const auto& static_fields = this->static_fields();
+		auto static_it = static_fields.find(name);
+		if(static_it != static_fields.end()) {
+			return std::make_shared<static_struct::field_info>(static_it->second);
+		}
+
+		// Check dynamic fields
+		const auto& dyn_fields = this->dynamic_fields();
+		if(dyn_fields) {
+			const auto& fields_map = dyn_fields->fields();
+			auto dynamic_it = fields_map.find(name);
+			if(dynamic_it != fields_map.end()) {
+				return std::make_shared<dynamic_struct::field_info>(dynamic_it->second);
+			}
+		}
+
+		return nullptr;
+	}
+
+	/**
+	 * @brief Get field value with optional return - works for both static and dynamic fields
+	 */
+	template<typename T>
+	std::optional<T> get_field(const std::string& name) const {
+		auto field_info = get_field_info(name);
+		if(!field_info || field_info->info() != typeinfo::of<T>()) {
+			return std::nullopt;
+		}
+
+		try {
+			if(field_info->kind() == base_field_info::STATIC) {
+				const auto& static_info =
+				        static_cast<const static_struct::field_info&>(*field_info);
+				auto accessor = static_info.template new_accessor<T>();
+				return get_static_field(accessor);
+			} else {
+				const auto& dynamic_info =
+				        static_cast<const dynamic_struct::field_info&>(*field_info);
+				auto accessor = dynamic_info.template new_accessor<T>();
+				T value;
+				// Need to cast away const to call get_dynamic_field
+				const_cast<table_entry*>(this)->get_dynamic_field(accessor, value);
+				return value;
+			}
+		} catch(...) {
+			return std::nullopt;
+		}
+	}
+
+	/**
+	 * @brief Get field value with default - works for both static and dynamic fields
+	 */
+	template<typename T>
+	T get_field_or(const std::string& name, const T& default_value) const {
+		return get_field<T>(name).value_or(default_value);
+	}
+
+	/**
+	 * @brief Set field value - works for both static and dynamic fields
+	 */
+	template<typename T>
+	bool set_field(const std::string& name, const T& value) {
+		auto field_info = get_field_info(name);
+		if(!field_info || field_info->info() != typeinfo::of<T>() || field_info->readonly()) {
+			return false;
+		}
+
+		try {
+			if(field_info->kind() == base_field_info::STATIC) {
+				const auto& static_info =
+				        static_cast<const static_struct::field_info&>(*field_info);
+				auto accessor = static_info.template new_accessor<T>();
+				set_static_field(accessor, value);
+				return true;
+			} else {
+				const auto& dynamic_info =
+				        static_cast<const dynamic_struct::field_info&>(*field_info);
+				auto accessor = dynamic_info.template new_accessor<T>();
+				set_dynamic_field(accessor, value);
+				return true;
+			}
+		} catch(...) {
+			return false;
+		}
+	}
+
+	/**
+	 * @brief Check if field exists (either static or dynamic)
+	 */
+	bool has_field(const std::string& name) const { return get_field_info(name) != nullptr; }
+
+	/**
+	 * @brief Get field type info
+	 */
+	std::optional<typeinfo> get_field_type(const std::string& name) const {
+		auto field_info = get_field_info(name);
+		return field_info ? std::optional<typeinfo>(field_info->info()) : std::nullopt;
+	}
+
+	/**
+	 * @brief Check if field is read-only
+	 */
+	bool is_field_readonly(const std::string& name) const {
+		auto field_info = get_field_info(name);
+		return field_info ? field_info->readonly() : true;
+	}
 };
 
 template<typename KeyType>

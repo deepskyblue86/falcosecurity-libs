@@ -19,6 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <libsinsp/state/type_info.h>
+#include <libsinsp/state/base_field.h>
 
 #include <string>
 #include <unordered_map>
@@ -41,7 +42,7 @@ public:
 	/**
 	 * @brief Info about a given field in a dynamic struct.
 	 */
-	class field_info {
+	class field_info : public base_field_info {
 	public:
 		template<typename T>
 		static inline field_info build(const std::string& name,
@@ -90,12 +91,12 @@ public:
 		/**
 		 * @brief Returns true if the field is read only.
 		 */
-		inline bool readonly() const { return m_readonly; }
+		inline bool readonly() const override { return m_readonly; }
 
 		/**
 		 * @brief Returns true if the field info is valid.
 		 */
-		inline bool valid() const {
+		inline bool valid() const override {
 			// note(jasondellaluce): for now dynamic fields of type table are
 			// not supported, so we consider them to be invalid
 			return m_index != (size_t)-1 && m_info.type_id() != SS_PLUGIN_ST_TABLE;
@@ -104,7 +105,7 @@ public:
 		/**
 		 * @brief Returns the name of the field.
 		 */
-		inline const std::string& name() const { return m_name; }
+		inline const std::string& name() const override { return m_name; }
 
 		/**
 		 * @brief Returns the index of the field.
@@ -114,7 +115,12 @@ public:
 		/**
 		 * @brief Returns the type info of the field.
 		 */
-		inline const libsinsp::state::typeinfo& info() const { return m_info; }
+		inline const libsinsp::state::typeinfo& info() const override { return m_info; }
+
+		/**
+		 * @brief Returns the field kind (DYNAMIC for dynamic fields).
+		 */
+		field_kind kind() const override { return DYNAMIC; }
 
 		/**
 		 * @brief Returns a strongly-typed accessor for the given field,

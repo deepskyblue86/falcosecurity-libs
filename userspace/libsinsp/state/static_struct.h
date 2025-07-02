@@ -19,6 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <libsinsp/state/type_info.h>
+#include <libsinsp/state/base_field.h>
 
 #include <string>
 #include <unordered_map>
@@ -40,7 +41,7 @@ public:
 	/**
 	 * @brief Info about a given field in a static struct.
 	 */
-	class field_info {
+	class field_info : public base_field_info {
 	public:
 		inline field_info():
 		        m_readonly(true),
@@ -65,22 +66,27 @@ public:
 		/**
 		 * @brief Returns true if the field info is valid.
 		 */
-		inline bool valid() const { return m_offset != (size_t)-1; }
+		inline bool valid() const override { return m_offset != (size_t)-1; }
 
 		/**
 		 * @brief Returns true if the field is read only.
 		 */
-		inline bool readonly() const { return m_readonly; }
+		inline bool readonly() const override { return m_readonly; }
 
 		/**
 		 * @brief Returns the name of the field.
 		 */
-		inline const std::string& name() const { return m_name; }
+		inline const std::string& name() const override { return m_name; }
 
 		/**
 		 * @brief Returns the type info of the field.
 		 */
-		inline const libsinsp::state::typeinfo& info() const { return m_info; }
+		inline const libsinsp::state::typeinfo& info() const override { return m_info; }
+
+		/**
+		 * @brief Returns the field kind (STATIC for static fields).
+		 */
+		field_kind kind() const override { return STATIC; }
 
 		/**
 		 * @brief Returns a strongly-typed accessor for the given field,
