@@ -817,8 +817,9 @@ static void *perf_event_mmap(struct bpf_engine *handle,
 	if(tmp == MAP_FAILED) {
 		scap_errprintf(handle->m_lasterr,
 		               errno,
-		               "mmap (1) failed (If you get memory allocation errors try to reduce the "
-		               "buffer dimension)");
+		               "mmap (1) size %lu failed (If you get memory allocation errors try "
+		               "to reduce the buffer dimension)",
+		               total_size);
 		return MAP_FAILED;
 	}
 
@@ -826,8 +827,10 @@ static void *perf_event_mmap(struct bpf_engine *handle,
 	if(p1 == MAP_FAILED) {
 		scap_errprintf(handle->m_lasterr,
 		               errno,
-		               "mmap (2) failed (If you get memory allocation errors try to reduce the "
-		               "buffer dimension)");
+		               "mmap (2) addr %p size %lu failed (If you get memory allocation errors try "
+		               "to reduce the buffer dimension)",
+		               tmp,
+		               map_size);
 		munmap(tmp, total_size);
 		return MAP_FAILED;
 	}
@@ -839,8 +842,10 @@ static void *perf_event_mmap(struct bpf_engine *handle,
 	if(p2 == MAP_FAILED) {
 		scap_errprintf(handle->m_lasterr,
 		               errno,
-		               "mmap (3) failed (If you get memory allocation errors try to reduce the "
-		               "buffer dimension)");
+		               "mmap (3) addr %p size %lu failed (If you get memory allocation errors try "
+		               "to reduce the buffer dimension)",
+		               tmp + map_size,
+		               map_size);
 		munmap(tmp, total_size);
 		return MAP_FAILED;
 	}
@@ -1551,10 +1556,8 @@ int32_t scap_bpf_load(struct bpf_engine *handle, unsigned long buffer_bytes_dim)
 		dev->m_buffer = perf_event_mmap(handle, pmu_fd, &dev->m_mmap_size, buffer_bytes_dim);
 		dev->m_buffer_size = buffer_bytes_dim;
 		if(dev->m_buffer == MAP_FAILED) {
-			return scap_errprintf(handle->m_lasterr,
-			                      errno,
-			                      "unable to mmap the perf-buffer for cpu '%d'",
-			                      cpu_idx);
+			// No need to overwrite the error already prepared by perf_event_mmap
+			return SCAP_FAILURE;
 		}
 		online_idx++;
 	}
